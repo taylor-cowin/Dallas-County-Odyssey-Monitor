@@ -3,17 +3,27 @@ from time import time
 import requests
 import datetime
 
-r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
+def check_site():
+    r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
 
-if r.ok:
-    result = 'UP'
-    text_color = '#66CD00'
-else:
-    result = 'DOWN'
-    text_color = '#FF3030'
+    if r.ok:
+        result = 'UP'
+    else:
+        result = 'DOWN'
 
-result_string = 'Dallas County Odyssey is currently: ' + result
-print(result_string)
+    last_run_time = datetime.datetime.now()
+    return result, last_run_time
 
-last_run_time = datetime.datetime.now() #use JS to do the math in browser
-print(last_run_time)
+def create_page(result, last_run_time):
+    result_string = 'Dallas County Odyssey is currently: ' + result
+    if result == 'UP':
+        text_color = '#FF3030'
+    else:
+        text_color = '#FF3030'
+    print(result_string)
+    print(text_color)
+    print(last_run_time)
+
+result, last_run_time = check_site()
+create_page(result, last_run_time)
+    
