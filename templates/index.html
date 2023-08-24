@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>DC Odyssey Status</title>
+    </head>
+    <body>
+        <h1>Odyssey is currently: </h1>
+        {% if result %}
+            <h1 style="color:{{text_color}};text-align:center;"></h1> {{ result }} </h1>
+        {% else %}
+            [An error has occurred]</>
+        {% endif %}
+    </body>
+</html>

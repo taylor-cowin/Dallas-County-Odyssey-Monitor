@@ -1,29 +1,26 @@
-from sqlite3 import Time
-from time import time
+from tkinter import N
+from flask import Flask, render_template
 import requests
 import datetime
 
-def check_site():
-    r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
+app = Flask(__name__)
+@app.errorhandler(404)
+def pageNotFound(error):
+    return "Error 404 - page not found."
 
+@app.errorhandler(500)
+def internal_error(error):
+    return "Error 500 - internal server error."
+
+@app.route("/")
+def index(result=None, text_color=None,last_run_time=None):
+    r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
     if r.ok:
         result = 'UP'
+        text_color = '#FF3030'
     else:
         result = 'DOWN'
-
-    last_run_time = datetime.datetime.now()
-    return result, last_run_time
-
-def create_page(result, last_run_time):
-    result_string = 'Dallas County Odyssey is currently: ' + result
-    if result == 'UP':
         text_color = '#FF3030'
-    else:
-        text_color = '#FF3030'
-    print(result_string)
-    print(text_color)
-    print(last_run_time)
-
-result, last_run_time = check_site()
-create_page(result, last_run_time)
+    last_run_time = str(datetime.datetime.now())
+    return render_template('index.html', result=result, text_color=text_color,last_run_time=last_run_time)
     
