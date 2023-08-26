@@ -12,8 +12,19 @@ from background import *
 from mongoconnect import *
 
 app = Flask(__name__)
+
+# create logger
+logger = logging.getLogger('odychk')
+logger.setLevel(logging.DEBUG)
+
+# create file handler which logs even debug messages
+fh = logging.FileHandler('odychk.log')
+fh.setLevel(logging.DEBUG)
+fh.setFormatter('%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s')
+logger.addHandler(fh)
+
 def start_update_worker():
-    logging.info("Starting update worker thread...")
+    logger.info("Starting update worker thread...")
     update_daemon = threading.Thread(group=None, target=main_loop, daemon=True, name='Update Worker')
     try:
         update_daemon.start()
