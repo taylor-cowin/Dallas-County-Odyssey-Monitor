@@ -2,6 +2,7 @@ from datetime import datetime
 import pymongo
 from pymongo import MongoClient
 import logging
+from app import logger
 
 def get_latest():
     result = ""
