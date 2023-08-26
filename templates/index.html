@@ -2,13 +2,33 @@
 <html lang="en">
     <head>
         <title>DC Odyssey Status</title>
+        <link rel = "stylesheet" href="static/css/style.css" />
     </head>
     <body>
-        <h1>Odyssey is currently: </h1>
-        {% if result %}
-            <h1 style="color:{{text_color}};text-align:center;"></h1> {{ result }} </h1>
+        {% if result == 'UP' %}
+            <h1>Odyssey is currently: <span style="color: #03ad12">UP</span> </h1>
+        {% elif result == 'DOWN' %}
+            <h1>Odyssey is currently: <span style="color: #c01111">DOWN</span> </h1>
         {% else %}
-            [An error has occurred]</>
+            [An error has occurred]: {{result}}</>
         {% endif %}
+        <h1>Last checked: {{last_run_time}}</h1>
+        
+        {% if one_day_uptime > -1 %}
+        <h1>24hr Uptime: {{one_day_uptime}}%</h1>
+        {% endif %}
+
+        {% if one_week_uptime > -1 %}
+        <h1>1 week Uptime: {{one_week_uptime}}%</h1>
+        {% endif %}
+
+        {% if one_month_uptime > -1 %}
+        <h1>1 month Uptime: {{one_month_uptime}}%</h1>
+        {% endif %}
+
+        {% if one_year_uptime > -1 %}
+        <h1>1 year Uptime: {{one_year_uptime}}%</h1>
+        {% endif %}
+
     </body>
 </html>
