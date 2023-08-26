@@ -12,23 +12,26 @@
         {% else %}
             [An error has occurred]: {{result}}</>
         {% endif %}
-        <h1>Last checked: {{last_run_time}}</h1>
-        
+        <h3>Last checked: {{last_run_time}}</h3>
+        <h3>Refresh page to update (checks once per minute)</h3>
+
         {% if one_day_uptime > -1 %}
-        <h1>24hr Uptime: {{one_day_uptime}}%</h1>
+        <h4 style="margin-top: 5%">24hr Uptime: {{one_day_uptime}}%</h4>
         {% endif %}
 
         {% if one_week_uptime > -1 %}
-        <h1>1 week Uptime: {{one_week_uptime}}%</h1>
+        <h4 style="margin-top: -2%">1 week Uptime: {{one_week_uptime}}%</h4>
         {% endif %}
 
         {% if one_month_uptime > -1 %}
-        <h1>1 month Uptime: {{one_month_uptime}}%</h1>
+        <h4 style="margin-top: -2%">1 month Uptime: {{one_month_uptime}}%</h4>
         {% endif %}
 
         {% if one_year_uptime > -1 %}
-        <h1>1 year Uptime: {{one_year_uptime}}%</h1>
+        <h4 style="margin-top: -2%">1 year Uptime: {{one_year_uptime}}%</h4>
         {% endif %}
-
     </body>
+    <footer>
+        Spread the word: This page can be accessed from: <a href="https://isodysseyup.com">isodysseyup.com</a>, <a href="https://isodysseyup.lol">isodysseyup.lol</a>, and <a href="https://isodyssey.online">isodyssey.online</a>.
+    </footer>
 </html>

@@ -1,5 +1,9 @@
-FIX LOGGING
 FORMATTING AND UX
-JAVASCRIPT COUNTER UNTIL NEXT REFRESH (IN APPROX... SECONDS)
 FIX WAITRESS??
 DEPLOYMENT AND LOCKING DOWN
+Deployment:
+    Install Mongo
+    Create odychk.results db/col
+    Install nginx + waitress
+    Tell flask it's behind a proxy
+    Once launched, wait for log to show that db has been populated

@@ -1,30 +1,29 @@
 #package imports
-from cmath import e
+from distutils.debug import DEBUG
+from distutils.log import INFO, debug
+from time import strftime, strptime
 from flask import Flask, render_template
 from datetime import datetime, timedelta
-from waitress import serve
+#from waitress import serve
 import threading
-import time
+import os
 import logging
 
 #local imports
 from background import *
-from mongoconnect import *
+import mongoconnect
 
-app = Flask(__name__)
+#config
+template_dir = os.path.abspath('./static/templates/')
 
-# create logger
-logger = logging.getLogger('odychk')
-logger.setLevel(logging.DEBUG)
+#Start app
+app = Flask(__name__, template_folder=template_dir)
 
-# create file handler which logs even debug messages
-fh = logging.FileHandler('odychk.log')
-fh.setLevel(logging.DEBUG)
-fh.setFormatter('%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s')
-logger.addHandler(fh)
+def init_logger():
+    logging.basicConfig(filename="odychk.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 
 def start_update_worker():
-    logger.info("Starting update worker thread...")
+    logging.info("Starting update worker thread...")
     update_daemon = threading.Thread(group=None, target=main_loop, daemon=True, name='Update Worker')
     try:
         update_daemon.start()
@@ -40,12 +39,9 @@ def start_update_worker():
 #    except:
 #        print("ERROR: could not start web server.")
  
+init_logger()
 #start_waitress()
 start_update_worker()
-
-
-    
-#waitress_thread = threading.Thread(start_waitress())
 
 logging.info("Ready to go...")
 
@@ -60,13 +56,11 @@ def internal_error(error):
 
 @app.route("/")
 def index(result=None, text_color=None,last_run_time=None):
-    #get the current time and determine what time it was a minute ago
-    #current_time = datetime.now()
-    #minute_elapsed_time = current_time - timedelta(minutes=1)
-
     #get the latest entry from the database and breakdown for display
-    last_result = get_latest()
+    last_result = mongoconnect.get_latest()
     last_run_time = last_result["run_time"]
+    last_run_time = strptime(last_run_time, '%Y-%m-%d %H:%M:%S')
+    last_run_time = strftime('%H:%M', last_run_time)
     result = last_result["result"]
 
     return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime= 1, one_week_uptime=1, one_month_uptime=1, one_year_uptime=1)
