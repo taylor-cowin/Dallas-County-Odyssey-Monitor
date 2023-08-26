@@ -6,8 +6,7 @@ import logging
 from datetime import datetime
 from time import strftime
 from flask import Flask, render_template
-
-#from waitress import serve
+from waitress import serve
 
 
 #local imports
@@ -19,6 +18,8 @@ template_dir = os.path.abspath('./static/templates/')
 
 #Start app
 app = Flask(__name__, template_folder=template_dir)
+if __name__ == "__main__":
+    serve(app, host='0.0.0.0', port=5000, url_scheme='https')
 
 def init_logger():
     logging.basicConfig(filename="odychk.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
