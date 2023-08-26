@@ -4,6 +4,8 @@ from flask import Flask, render_template
 from datetime import datetime, timedelta
 from waitress import serve
 import threading
+import time
+import logging
 
 #local imports
 from background import *
@@ -11,13 +13,13 @@ from mongoconnect import *
 
 app = Flask(__name__)
 def start_update_worker():
-    print("Starting update worker thread...")
+    logging.info("Starting update worker thread...")
     update_daemon = threading.Thread(group=None, target=main_loop, daemon=True, name='Update Worker')
     try:
         update_daemon.start()
-        print("Update worker thread started successfully...")
+        logging.info("Update worker thread started successfully...")
     except:
-        print("ERROR: could not start update worker thread...")
+        logging.info("ERROR: could not start update worker thread...")
 
 #def start_waitress():
 #    try:
@@ -34,7 +36,7 @@ start_update_worker()
     
 #waitress_thread = threading.Thread(start_waitress())
 
-print("Ready to go...")
+logging.info("Ready to go...")
 
 @app.errorhandler(404)
 def pageNotFound(error):
@@ -42,6 +44,7 @@ def pageNotFound(error):
 
 @app.errorhandler(500)
 def internal_error(error):
+    logging.error("Error page was reached")
     return "Error 500 - internal server error."
 
 @app.route("/")
@@ -55,4 +58,4 @@ def index(result=None, text_color=None,last_run_time=None):
     last_run_time = last_result["run_time"]
     result = last_result["result"]
 
-    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime= -1, one_week_uptime=-1, one_month_uptime=-1, one_year_uptime=-1)
+    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime= 1, one_week_uptime=1, one_month_uptime=1, one_year_uptime=1)

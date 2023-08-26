@@ -1,6 +1,7 @@
 from datetime import datetime
 import pymongo
 from pymongo import MongoClient
+import logging
 
 def get_latest():
     result = ""
@@ -11,7 +12,7 @@ def get_latest():
     try:
         last_result = col.find_one(sort=[('_id', pymongo.DESCENDING)])
     except:
-        print("ERROR: could not get last db result from mongo.")
+        logging.critical("ERROR: could not get last db entry.")
     return last_result
 
 def get_day():
