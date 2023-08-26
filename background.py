@@ -13,13 +13,13 @@ def main_loop():
     time.sleep(time_offset)
     t = time.strftime('%H:%M:%S', datetime.now().timetuple())
     logging.info("Time synchronization complete. Beginning website check at " + t + "...")
-
+    
     while True:
         mongoconnect.set_result(check_site())
         time.sleep(60)
 
 def check_site():
-    run_time = time.strftime('%Y-%m-%d %H:%M:%S', datetime.now().timetuple())
+    run_time = datetime.utcnow()
     try:
         r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
         if r.ok:

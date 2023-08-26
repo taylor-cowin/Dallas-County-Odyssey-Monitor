@@ -1,16 +1,17 @@
 #package imports
-from distutils.debug import DEBUG
-from distutils.log import INFO, debug
-from time import strftime, strptime
-from flask import Flask, render_template
-from datetime import datetime, timedelta
-#from waitress import serve
 import threading
 import os
 import logging
 
+from datetime import datetime
+from time import strftime
+from flask import Flask, render_template
+
+#from waitress import serve
+
+
 #local imports
-from background import *
+from background import main_loop
 import mongoconnect
 
 #config
@@ -45,22 +46,21 @@ start_update_worker()
 
 logging.info("Ready to go...")
 
-@app.errorhandler(404)
-def pageNotFound(error):
-    return "Error 404 - page not found."
+#@app.errorhandler(404)
+#def pageNotFound(error):
+#    return "Error 404 - page not found."
 
-@app.errorhandler(500)
-def internal_error(error):
-    logging.error("Error page was reached")
-    return "Error 500 - internal server error."
+#@app.errorhandler(500)
+#def internal_error(error):
+#    logging.error("Error page was reached")
+#    return "Error 500 - internal server error."
 
 @app.route("/")
 def index(result=None, text_color=None,last_run_time=None):
     #get the latest entry from the database and breakdown for display
     last_result = mongoconnect.get_latest()
     last_run_time = last_result["run_time"]
-    last_run_time = strptime(last_run_time, '%Y-%m-%d %H:%M:%S')
-    last_run_time = strftime('%H:%M', last_run_time)
+    last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_run_time))
     result = last_result["result"]
 
-    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime= 1, one_week_uptime=1, one_month_uptime=1, one_year_uptime=1)
+    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
