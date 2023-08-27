@@ -21,6 +21,7 @@ template_dir = os.path.abspath('./static/templates/')
 app = Flask(__name__, template_folder=template_dir)
 logger = logging.getLogger('ody_log')
 
+#The main website
 @app.route("/")
 def index(result=None, text_color=None,last_run_time=None):
     #get the latest entry from the database and breakdown for display
@@ -31,6 +32,7 @@ def index(result=None, text_color=None,last_run_time=None):
 
     return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
+#Starts the web server
 def start_waitress():
     try:
         logger.info("Starting web server...")
@@ -39,7 +41,6 @@ def start_waitress():
     except:
         logger.critical("ERROR: could not start web server.")
  
-
 def init_logger():
     logger.setLevel(logging.INFO)
     log_handler = RotatingFileHandler('odychk.log', mode='a', maxBytes=4096, backupCount=10)
@@ -48,6 +49,7 @@ def init_logger():
     log_handler.setFormatter(log_formatter)
     logger.addHandler(log_handler)
 
+#Launch the background thread to pull info to the db from Odyssey
 def start_update_worker():
     logger.info("Starting update worker thread...")
     update_daemon = threading.Thread(group=None, target=main_loop, daemon=True, name='Update Worker')
@@ -57,6 +59,7 @@ def start_update_worker():
     except:
         logger.info("ERROR: could not start update worker thread...")
 
+#Startup calls
 if __name__ == "__main__":
     init_logger()
     start_update_worker()

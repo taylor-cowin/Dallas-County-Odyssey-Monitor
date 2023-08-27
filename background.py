@@ -1,3 +1,4 @@
+#Background worker thread that pulls results from Odyssey
 from datetime import datetime
 import requests
 import time
@@ -15,6 +16,7 @@ def main_loop():
     t = time.strftime('%H:%M:%S', datetime.now().timetuple())
     logger.info("Time synchronization complete. Beginning website check at " + t + "...")
     
+    #The actual loop -- checks site once per minute
     while True:
         mongoconnect.set_result(check_site())
         time.sleep(60)
@@ -27,6 +29,7 @@ def check_site():
             result = 'UP'
         else:
             result = 'DOWN'
+        #Return a dict with the real results or an error result
         return {"result": result, "run_time": run_time}
     except:
         return {"result": "ERROR", "run_time": run_time}

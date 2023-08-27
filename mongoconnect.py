@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from bson.codec_options import CodecOptions
 import pytz
 
+#connect to the database and pull the results in local time or push them in utc
 def db_connect(args):
     dbclient = MongoClient()
     db = dbclient["odychk"]
@@ -14,6 +15,7 @@ def db_connect(args):
         col = col.with_options(codec_options=CodecOptions(tz_aware=True,tzinfo=pytz.timezone('US/Central')))
     return col
 
+#Get the most recent result to determine up/down
 def get_latest():
     try:
         last_result = db_connect("local").find_one(sort=[('_id', pymongo.DESCENDING)])
@@ -22,6 +24,7 @@ def get_latest():
         logger.critical("ERROR: could not get last db entry.")
     return last_result
 
+#The next 4 functions will pull the results for a given time period and calculate the uptime percentage
 def get_day():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)]) # NEED TO SORT THESE TO MAKE THE POSITION 0 OLDEST
@@ -42,6 +45,7 @@ def get_year():
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return calculate_percentage(col, "year") #1 year uptime
 
+#Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
     oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
     
@@ -66,6 +70,7 @@ def calculate_percentage(col_dict, time_offset):
         if entry["result"] == "DOWN":
             down_count += 1
     if down_count > 0:
+        #hashtagmaths
         uptime_percentage = float(100-float(100*float(down_count/ len(col_dict))))
     return uptime_percentage
 
