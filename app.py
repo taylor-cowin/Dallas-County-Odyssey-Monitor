@@ -2,6 +2,7 @@
 import threading
 import os
 import logging
+from logging.handlers import RotatingFileHandler
 
 from datetime import datetime
 from time import strftime
@@ -18,6 +19,7 @@ template_dir = os.path.abspath('./static/templates/')
 
 #Start app
 app = Flask(__name__, template_folder=template_dir)
+logger = logging.getLogger('ody_log')
 
 @app.route("/")
 def index(result=None, text_color=None,last_run_time=None):
@@ -29,34 +31,38 @@ def index(result=None, text_color=None,last_run_time=None):
 
     return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
-
 def start_waitress():
     try:
-        logging.info("Starting web server...")
+        logger.info("Starting web server...")
         serve(app, host='0.0.0.0', port=5000)
-        logging.info("Web server started successfully...")
+        logger.info("Web server started successfully...")
     except:
-        logging.critical("ERROR: could not start web server.")
+        logger.critical("ERROR: could not start web server.")
  
 
 def init_logger():
-    logging.basicConfig(filename="odychk.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
+    logger.setLevel(logging.INFO)
+    log_handler = RotatingFileHandler('odychk.log', mode='a', maxBytes=4096, backupCount=10)
+    log_handler.setLevel(logging.INFO)
+    log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
+    log_handler.setFormatter(log_formatter)
+    logger.addHandler(log_handler)
 
 def start_update_worker():
-    logging.info("Starting update worker thread...")
+    logger.info("Starting update worker thread...")
     update_daemon = threading.Thread(group=None, target=main_loop, daemon=True, name='Update Worker')
     try:
         update_daemon.start()
-        logging.info("Update worker thread started successfully...")
+        logger.info("Update worker thread started successfully...")
     except:
-        logging.info("ERROR: could not start update worker thread...")
+        logger.info("ERROR: could not start update worker thread...")
 
 if __name__ == "__main__":
-    start_waitress()
     init_logger()
     start_update_worker()
+    start_waitress()
 
-logging.info("Ready to go...")
+logger.info("Ready to go...")
 
 #@app.errorhandler(404)
 #def pageNotFound(error):

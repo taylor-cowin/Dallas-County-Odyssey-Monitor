@@ -6,13 +6,14 @@ import logging
 
 #Check to see if site is up and log result
 def main_loop():
+    logger = logging.getLogger('ody_log')
     #on first run, make sure we're starting at or near the start of the minute
     t = time.strftime('%S', datetime.now().timetuple())
     time_offset = 60-int(t)
-    logging.info("Time Synchronization: Website checks will begin in " + str(time_offset) + " seconds...")
+    logger.info("Time Synchronization: Website checks will begin in " + str(time_offset) + " seconds...")
     time.sleep(time_offset)
     t = time.strftime('%H:%M:%S', datetime.now().timetuple())
-    logging.info("Time synchronization complete. Beginning website check at " + t + "...")
+    logger.info("Time synchronization complete. Beginning website check at " + t + "...")
     
     while True:
         mongoconnect.set_result(check_site())

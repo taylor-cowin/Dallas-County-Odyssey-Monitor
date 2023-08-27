@@ -6,7 +6,6 @@ from pymongo import MongoClient
 from bson.codec_options import CodecOptions
 import pytz
 
-
 def db_connect(args):
     dbclient = MongoClient()
     db = dbclient["odychk"]
@@ -19,7 +18,8 @@ def get_latest():
     try:
         last_result = db_connect("local").find_one(sort=[('_id', pymongo.DESCENDING)])
     except:
-        logging.critical("ERROR: could not get last db entry.")
+        logger = logging.getLogger('ody_log')
+        logger.critical("ERROR: could not get last db entry.")
     return last_result
 
 def get_day():
