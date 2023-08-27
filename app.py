@@ -18,8 +18,26 @@ template_dir = os.path.abspath('./static/templates/')
 
 #Start app
 app = Flask(__name__, template_folder=template_dir)
-if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=5000, url_scheme='https')
+
+@app.route("/")
+def index(result=None, text_color=None,last_run_time=None):
+    #get the latest entry from the database and breakdown for display
+    last_result = mongoconnect.get_latest()
+    last_run_time = last_result["run_time"]
+    last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_run_time))
+    result = last_result["result"]
+
+    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
+
+
+def start_waitress():
+    try:
+        logging.info("Starting web server...")
+        serve(app, host='0.0.0.0', port=5000)
+        logging.info("Web server started successfully...")
+    except:
+        logging.critical("ERROR: could not start web server.")
+ 
 
 def init_logger():
     logging.basicConfig(filename="odychk.log", level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
@@ -33,17 +51,10 @@ def start_update_worker():
     except:
         logging.info("ERROR: could not start update worker thread...")
 
-#def start_waitress():
-#    try:
-#        print("Starting web server...")
-#        serve(app, host='0.0.0.0', port=5000)
-#        print("Web server started successfully...")
-#    except:
-#        print("ERROR: could not start web server.")
- 
-init_logger()
-#start_waitress()
-start_update_worker()
+if __name__ == "__main__":
+    start_waitress()
+    init_logger()
+    start_update_worker()
 
 logging.info("Ready to go...")
 
@@ -56,12 +67,3 @@ logging.info("Ready to go...")
 #    logging.error("Error page was reached")
 #    return "Error 500 - internal server error."
 
-@app.route("/")
-def index(result=None, text_color=None,last_run_time=None):
-    #get the latest entry from the database and breakdown for display
-    last_result = mongoconnect.get_latest()
-    last_run_time = last_result["run_time"]
-    last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_run_time))
-    result = last_result["result"]
-
-    return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
