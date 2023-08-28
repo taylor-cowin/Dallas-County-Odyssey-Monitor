@@ -26,22 +26,22 @@ def get_latest():
 
 #The next 4 functions will pull the results for a given time period and calculate the uptime percentage
 def get_day():
-    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)
+    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)]) # NEED TO SORT THESE TO MAKE THE POSITION 0 OLDEST
     return calculate_percentage(col, "day") #24 hour uptime
 
 def get_week():
-    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=7)
+    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=7.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return calculate_percentage(col, "week") #168 hour uptime
 
 def get_month():
-    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=30)
+    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=30.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return calculate_percentage(col, "month") #30 day uptime
 
 def get_year():
-    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365)
+    time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return calculate_percentage(col, "year") #1 year uptime
 
@@ -54,8 +54,9 @@ def calculate_percentage(col_dict, time_offset):
         case "day":
             #if it hasn't been that long yet, set return to -1 to hide it from the website
             logger.info("Day calculation for time minus timedelta (1): " + str(datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)))
-            logger.info(str(oldest_date))
+            logger.info("Oldest date from calculation: " + str(oldest_date))
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)) < oldest_date:
+                logger.info("It hasn't been a day yet.")
                 return -1
         case "week":
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=7)) < oldest_date:
