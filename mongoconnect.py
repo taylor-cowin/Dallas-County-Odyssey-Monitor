@@ -49,6 +49,8 @@ def get_year():
 #Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
     logger = logging.getLogger('ody_log')
+    #Start by converting cursor to list
+    col_dict = list(col_dict)
     oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
     
     match time_offset:
@@ -66,17 +68,22 @@ def calculate_percentage(col_dict, time_offset):
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=365)) < oldest_date:
                 return -1
 
+    #default values
     down_count = 0
     uptime_percentage = 100
     for entry in col_dict:
         if entry["result"] == "DOWN":
             down_count += 1
-        #remove errors
-        elif(entry["result"] == "ERROR"):
-            col_dict.remove(entry)
+       #remove the errors
+       # elif(entry["result"] == "ERROR"):
+       #     col_dict.remove(entry)
     if down_count > 0:
         #hashtagmaths
-        uptime_percentage = float(100-float(100*float(down_count/ len(col_dict))))
+        uptime_percentage = round(float(100-float(100*float(down_count/ len(col_dict)))), 2)
+    logger.info("Total count: " + str(len(col_dict)))
+    logger.info("Down count: " + str(down_count))
+    logger.info("uptime percentage: " + str(uptime_percentage))
+
     return uptime_percentage
 
 #Push update to mongodb
