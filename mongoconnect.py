@@ -75,8 +75,8 @@ def calculate_percentage(col_dict, time_offset):
         if entry["result"] == "DOWN":
             down_count += 1
        #remove the errors
-       # elif(entry["result"] == "ERROR"):
-       #     col_dict.remove(entry)
+        elif(entry["result"] == "ERROR"):
+            col_dict.remove(entry)
     if down_count > 0:
         #hashtagmaths
         uptime_percentage = round(float(100-float(100*float(down_count/ len(col_dict)))), 2)
