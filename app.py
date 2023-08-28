@@ -23,7 +23,7 @@ logger = logging.getLogger('ody_log')
 
 #The main website
 @app.route("/")
-def index(result=None, text_color=None,last_run_time=None):
+def index(result=None,last_run_time=None):
     #get the latest entry from the database and breakdown for display
     last_result = mongoconnect.get_latest()
     last_run_time = last_result["run_time"]

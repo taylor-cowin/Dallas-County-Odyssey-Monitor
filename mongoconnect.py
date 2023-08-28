@@ -47,11 +47,14 @@ def get_year():
 
 #Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
+    logger = logging.getLogger('ody_log')
     oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
     
     match time_offset:
         case "day":
             #if it hasn't been that long yet, set return to -1 to hide it from the website
+            logger.info("Day calculation for time minus timedelta (1): " + str(datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)))
+            logger.info(str(oldest_date))
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)) < oldest_date:
                 return -1
         case "week":
