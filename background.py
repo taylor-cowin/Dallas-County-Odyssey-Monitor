@@ -24,12 +24,15 @@ def main_loop():
 def check_site():
     logger = logging.getLogger('ody_log')
     run_time = datetime.utcnow()
-    r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
-    if r.ok:
-        result = 'UP'
-    else:
-        result = 'DOWN'
-        logger.info("ODYSSEY RETURNED DOWN")
+    try:
+        r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
+        if r.ok:
+            result = 'UP'
+        else:
+            result = 'DOWN'
+            logger.info("ODYSSEY RETURNED DOWN")
+    except:
+        result = 'ERROR'
     logger.info(result + " at " + str(run_time))
 
     #Return a dict with the real results or an error result

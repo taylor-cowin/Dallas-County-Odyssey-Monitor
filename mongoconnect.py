@@ -25,6 +25,7 @@ def get_latest():
     return last_result
 
 #The next 4 functions will pull the results for a given time period and calculate the uptime percentage
+#add .01 to make sure we're grabbing enough entries
 def get_day():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)]) # NEED TO SORT THESE TO MAKE THE POSITION 0 OLDEST
@@ -53,10 +54,7 @@ def calculate_percentage(col_dict, time_offset):
     match time_offset:
         case "day":
             #if it hasn't been that long yet, set return to -1 to hide it from the website
-            logger.info("Day calculation for time minus timedelta (1): " + str(datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)))
-            logger.info("Oldest date from calculation: " + str(oldest_date))
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)) < oldest_date:
-                logger.info("It hasn't been a day yet.")
                 return -1
         case "week":
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=7)) < oldest_date:
@@ -73,6 +71,9 @@ def calculate_percentage(col_dict, time_offset):
     for entry in col_dict:
         if entry["result"] == "DOWN":
             down_count += 1
+        #remove errors
+        elif(entry["result"] == "ERROR"):
+            col_dict.remove(entry)
     if down_count > 0:
         #hashtagmaths
         uptime_percentage = float(100-float(100*float(down_count/ len(col_dict))))

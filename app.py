@@ -66,13 +66,3 @@ if __name__ == "__main__":
     start_waitress()
 
 logger.info("Ready to go...")
-
-#@app.errorhandler(404)
-#def pageNotFound(error):
-#    return "Error 404 - page not found."
-
-#@app.errorhandler(500)
-#def internal_error(error):
-#    logging.error("Error page was reached")
-#    return "Error 500 - internal server error."
-
