@@ -28,8 +28,10 @@ def http_request():
         r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
         if r.status_code == 200:
             result = 'UP'
+            return result
     except requests.exceptions.RequestException as e:
         logger.info(str(e))
+        return result
     return result
 
 def check_site():
