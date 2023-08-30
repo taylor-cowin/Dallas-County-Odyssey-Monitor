@@ -1,5 +1,4 @@
 #Background worker thread that pulls results from Odyssey
-from asyncio.windows_events import NULL
 from datetime import datetime
 import requests
 import time
