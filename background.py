@@ -18,9 +18,11 @@ def main_loop():
     
     #The actual loop -- checks site once per minute
     while True:
-        mongoconnect.set_result(check_site())
-        time.sleep(60)
-
+        try:
+            mongoconnect.set_result(check_site())
+            time.sleep(60)
+        except:
+            logger.info("Couldn't set result of website check.")
 def http_request():
     logger = logging.getLogger('ody_log')
     result = "DOWN"
