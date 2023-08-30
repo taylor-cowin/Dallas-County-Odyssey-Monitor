@@ -41,7 +41,5 @@ def http_request():
             result = 'DOWN'
             logger.info("ODYSSEY RETURNED DOWN")
     except requests.exceptions.RequestException as e:
-        logger.error("Couldn't get Ody status (error = " + str(e) + "). Trying again in 5s...")
-        time.sleep(5)
-        http_request()    
+        result = "DOWN"
     return result
