@@ -44,7 +44,7 @@ def start_waitress():
 def init_logger():
     logger.setLevel(logging.INFO)
     log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
-    log_handler = RotatingFileHandler('odychk.log', encoding=None, delay=False, errors=None, maxBytes=4096, backupCount=10)
+    log_handler = RotatingFileHandler('odychk.log', encoding=None, delay=False, errors=None, maxBytes=1024*25, backupCount=30)
     log_handler.setLevel(logging.INFO)
     log_handler.setFormatter(log_formatter)
     logger.addHandler(log_handler)

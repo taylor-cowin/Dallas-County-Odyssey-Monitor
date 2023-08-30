@@ -77,9 +77,7 @@ def calculate_percentage(col_dict, time_offset):
     if down_count > 0:
         #hashtagmaths
         uptime_percentage = round(float(100-float(100*float(down_count/ len(col_dict)))), 2)
-    logger.info("Total count: " + str(len(col_dict)))
-    logger.info("Down count: " + str(down_count))
-    logger.info("uptime percentage: " + str(uptime_percentage))
+    logger.info("Total count: " + str(len(col_dict)) + ". Down count: " + str(down_count) + ". Uptime percentage: " + str(uptime_percentage))
 
     return uptime_percentage
 
