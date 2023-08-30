@@ -32,15 +32,11 @@ def check_site():
 
 def http_request():
     logger = logging.getLogger('ody_log')
-    result = "ERROR"
+    result = "DOWN"
     try:
         r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
         if r.status_code == 200:
             result = 'UP'
-        else:
-            result = 'DOWN'
-            logger.info("ODYSSEY RETURNED DOWN")
     except requests.exceptions.RequestException as e:
-        result = "DOWN"
-        logger.info("ODYSSEY RETURNED DOWN" + str(e))
+        logger.info(str(e))
     return result
