@@ -33,7 +33,10 @@ def check_site():
                 result = 'DOWN'
                 logger.info("ODYSSEY RETURNED DOWN")
         except:
+            logger.error("Couldn't get Ody status. Trying again in 5s...")
+            time.sleep(5)
             http_request()
+        
         return result
     result = http_request()
     logger.info(result + " at " + str(run_time))
