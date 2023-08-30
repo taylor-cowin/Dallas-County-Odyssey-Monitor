@@ -25,7 +25,7 @@ def main_loop():
             logger.info("Couldn't set result of website check.")
 def http_request():
     logger = logging.getLogger('ody_log')
-    result = "DOWN"
+    result = 'DOWN'
     try:
         r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
         if r.status_code == 200:
@@ -33,6 +33,7 @@ def http_request():
             return result
     except requests.exceptions.RequestException as e:
         logger.info(str(e))
+        pass
         return result
     return result
 
