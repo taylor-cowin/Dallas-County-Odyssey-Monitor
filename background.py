@@ -24,6 +24,7 @@ def main_loop():
 def check_site():
     logger = logging.getLogger('ody_log')
     run_time = datetime.utcnow()
+    logger.info("Called check_site() - about to check result. Run_time = " + str(run_time))
     result = http_request()
     logger.info(result + " at " + str(run_time))
     #Return a dict with the real results or an error result
