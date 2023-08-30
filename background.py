@@ -42,5 +42,5 @@ def http_request():
             logger.info("ODYSSEY RETURNED DOWN")
     except requests.exceptions.RequestException as e:
         result = "DOWN"
-        logger.info("ODYSSEY RETURNED DOWN")
+        logger.info("ODYSSEY RETURNED DOWN" + str(e))
     return result
