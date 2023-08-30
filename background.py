@@ -21,15 +21,6 @@ def main_loop():
         mongoconnect.set_result(check_site())
         time.sleep(60)
 
-def check_site():
-    logger = logging.getLogger('ody_log')
-    run_time = datetime.utcnow()
-    logger.info("Called check_site() - about to check result. Run_time = " + str(run_time))
-    result = http_request()
-    logger.info(result + " at " + str(run_time))
-    #Return a dict with the real results or an error result
-    return {"result": result, "run_time": run_time}
-
 def http_request():
     logger = logging.getLogger('ody_log')
     result = "DOWN"
@@ -40,3 +31,12 @@ def http_request():
     except requests.exceptions.RequestException as e:
         logger.info(str(e))
     return result
+
+def check_site():
+    logger = logging.getLogger('ody_log')
+    run_time = datetime.utcnow()
+    logger.info("Called check_site() - about to check result. Run_time = " + str(run_time))
+    result = http_request()
+    logger.info(result + " at " + str(run_time))
+    #Return a dict with the real results or an error result
+    return {"result": result, "run_time": run_time}
