@@ -27,7 +27,7 @@ def http_request():
     logger = logging.getLogger('ody_log')
     result = 'DOWN'
     try:
-        r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD')
+        r = requests.get('https://courtsportal.dallascounty.org/DALLASPROD', timeout=10)
         if r.status_code == 200:
             result = 'UP'
             return result
