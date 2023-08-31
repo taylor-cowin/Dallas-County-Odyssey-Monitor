@@ -6,9 +6,9 @@
     </head>
     <body>
         {% if result == 'UP' %}
-            <h1>Odyssey is currently: <span style="color: #03ad12">UP</span> </h1>
+            <h1>Odyssey is currently: <span id="up">UP</span></h1>
         {% elif result == 'DOWN' %}
-            <h1>Odyssey is currently: <span style="color: #c01111">DOWN</span> </h1>
+            <h1>Odyssey is currently: <span id="down">DOWN</span></h1>
         {% else %}
             [An error has occurred]: {{result}}</>
         {% endif %}
@@ -16,19 +16,19 @@
         <h3>Refresh page to update (checks once per minute)</h3>
 
         {% if one_day_uptime > -1 %}
-        <h4 style="margin-top: 5%">24hr Uptime: {{one_day_uptime}}%</h4>
+        <h4>24hr Uptime: {{one_day_uptime}}%</h4>
         {% endif %}
 
         {% if one_week_uptime > -1 %}
-        <h4 style="margin-top: -2vh">1 week Uptime: {{one_week_uptime}}%</h4>
+        <h4>1 week Uptime: {{one_week_uptime}}%</h4>
         {% endif %}
 
         {% if one_month_uptime > -1 %}
-        <h4 style="margin-top: -2vh">30 day Uptime: {{one_month_uptime}}%</h4>
+        <h4>30 day Uptime: {{one_month_uptime}}%</h4>
         {% endif %}
 
         {% if one_year_uptime > -1 %}
-        <h4 style="margin-top: -2vh">1 year Uptime: {{one_year_uptime}}%</h4>
+        <h4>1 year Uptime: {{one_year_uptime}}%</h4>
         {% endif %}
     </body>
     <footer>
@@ -36,6 +36,6 @@
     <p>This page was created to help answer the question echoing in the post-FORVUS halls of Crowley: "Is Odyssey still down for you?"</p>
         <p>Help spread the word: This page can be accessed from <a href="https://isodysseydown.com">isodysseydown.com</a>, <a href="https://isodysseydown.lol">isodysseydown.lol</a>, and <a href="https://isodyssey.online">isodyssey.online</a>.</p>
 
-        <p style="font-size: .75em">Disclaimer: This page was slapped together over a weekend and is subject to errors. This information should not be relied on for any business purpose.</p>
+        <div id="disclaimer"><p>Disclaimer: This page was slapped together over a weekend and is subject to errors. This information should not be relied on for any business purpose.</p></div>
     </footer>
 </html>

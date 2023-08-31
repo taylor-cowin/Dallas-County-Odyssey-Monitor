@@ -8,8 +8,8 @@ body{
 
 h1 {
     font-size: 3em;
-    padding-top: 2vh;
-    margin-bottom: 0vh;
+    padding-top: 3vh;
+    margin-bottom: 1.5vh;
 }
 
 h3 {
@@ -18,10 +18,26 @@ h3 {
     margin-bottom: -2vh;
 }
 
+h4 {
+    margin-top: -2vh;
+}
+
 footer{
     margin-top: 5vh;
 }
 
 a {
     color: #EEEEEE;
+}
+
+#disclaimer{
+    font-size: .75em;
+}
+
+#down{
+    color: #c01111;
+}
+
+#up{
+    color: #03ad12;
 }
