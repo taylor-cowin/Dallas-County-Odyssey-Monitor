@@ -10,7 +10,7 @@
         {% elif result == 'DOWN' %}
             <h1><a href="https://courtsportal.dallascounty.org/DALLASPROD">Odyssey</a> is currently: <span id="down">DOWN</span></h1>
         {% else %}
-            [An error has occurred]: {{result}}</>
+            <h1>[An error has occurred]: {{result}}</h1>
         {% endif %}
         <h3 id="lastChecked">Last checked: {{last_run_time}}</h3>
         <h3 id="refreshPage">Refresh page to update (checks once per minute)</h3>
