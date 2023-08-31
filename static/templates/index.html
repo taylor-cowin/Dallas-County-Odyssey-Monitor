@@ -12,8 +12,10 @@
         {% else %}
             [An error has occurred]: {{result}}</>
         {% endif %}
-        <h3>Last checked: {{last_run_time}}</h3>
-        <h3>Refresh page to update (checks once per minute)</h3>
+        <h3>Last checked: {{last_run_time}}
+            <p>Refresh page to update (checks once per minute)</p>
+        </h3>
+        
 
         {% if one_day_uptime > -1 %}
         <h4>24hr Uptime: {{one_day_uptime}}%</h4>
