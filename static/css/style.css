@@ -10,6 +10,10 @@ body{
     margin-bottom: 0vh;
 }
 
+#refreshPage{
+    margin-top: -2vh;
+}
+
 h1 {
     font-size: 3em;
     padding-top: 3vh;
