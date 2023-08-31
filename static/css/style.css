@@ -6,6 +6,10 @@ body{
     text-align: center;
 }
 
+#lastChecked{
+    margin-bottom: 0vh;
+}
+
 h1 {
     font-size: 3em;
     padding-top: 3vh;
@@ -42,6 +46,3 @@ a {
     color: #03ad12;
 }
 
-#lastChecked{
-    margin-bottom: 0%;
-}
