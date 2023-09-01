@@ -31,9 +31,9 @@ def index(result=None,last_run_time=None):
     return render_template('index.html', result=result,last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
 #Favicon
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory('/static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+#@app.route('/favicon.ico')
+#def favicon():
+#    return send_from_directory('/static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 #Starts the web server
 def start_waitress():

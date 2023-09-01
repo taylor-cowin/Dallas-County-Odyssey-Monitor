@@ -9,7 +9,6 @@ body{
 h1 {
     font-size: 3em;
     padding-top: 3vh;
-    margin-bottom: 1.5vh;
 }
 
 h3 {
@@ -42,6 +41,7 @@ a {
 
 #lastChecked{
     margin-bottom: 2vh;
+    margin-top: 1.5vh;
 }
 
 #refreshPage{
