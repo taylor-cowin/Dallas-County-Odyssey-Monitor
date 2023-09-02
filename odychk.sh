@@ -25,7 +25,21 @@ restart-background-worker(){
 }
 
 install-services(){
+    if [ -e /etc/systemd/system/odychk-bg.service ]
+    then
+        echo "Background service already installed... Skipping..."
+    else
+        INSTALLBG="/etc/systemd/system/odychk-bg.service"
+        echo "Installing background service at $INSTALLBG"
+    fi
 
+    if [ -e /etc/systemd/system/odychk-web.service ]
+    then
+        echo "Web service already installed... Skipping..."
+    else
+        INSTALLWEB="/etc/systemd/system/odychk-web.service"
+        echo "Installing web service at $INSTALLWEB"
+    fi
 }
 
 uninstall-services(){
