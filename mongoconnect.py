@@ -11,8 +11,7 @@ def db_connect(args):
     dbclient = MongoClient()
     db = dbclient["odychk"]
     col = db["results"]
-    if args == "local":
-        col = col.with_options(codec_options=CodecOptions(tz_aware=True,tzinfo=pytz.timezone('US/Central')))
+    col = col.with_options(codec_options=CodecOptions(tz_aware=True,tzinfo=pytz.timezone('US/Central')))
     return col
 
 #Get the most recent result to determine up/down
@@ -80,8 +79,3 @@ def calculate_percentage(col_dict, time_offset):
     logger.info("Total count: " + str(len(col_dict)) + ". Down count: " + str(down_count) + ". Uptime percentage: " + str(uptime_percentage))
 
     return uptime_percentage
-
-#Push update to mongodb
-def set_result(result_dict):
-    db_connect("utc").insert_one({"run_time": result_dict["run_time"], "result": result_dict["result"]})
-    return
