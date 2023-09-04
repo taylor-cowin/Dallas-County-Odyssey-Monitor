@@ -17,8 +17,7 @@ app = Flask(__name__, template_folder=template_dir)
 logger = logging.getLogger('ody_log')
 
 #The main website
-@app.route("/")
-#I legitimately can't remember why these args exist. But the site works and I ain't gonna fight it.
+@app.route("/", methods=['GET'])
 def index():
     #get the latest entry from the database and breakdown for display
     logger.debug("Index.html accessed...")
@@ -26,8 +25,32 @@ def index():
     last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_result["run_time"]))
     return render_template('index.html', result=last_result["result"],last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
+@app.route("/api/data/last/")
+def api_lastresult():
+    return
+
+@app.route("/api/data/last/outage/")
+def api_last_outage():
+    return
+    
+@app.route("/api/data/last/day/")
+def api_last_day():
+    return
+
+@app.route("/api/data/last/week/")
+def api_last_week():
+    return
+
+@app.route("/api/data/last/month/")
+def api_last_month():
+    return
+
+@app.route("/api/data/last/year/")
+def api_last_year():
+    return
+
 #Favicon
-@app.route('/favicon.ico')
+@app.route('/favicon.ico/')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
