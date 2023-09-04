@@ -1,33 +1,48 @@
 #!/bin/bash
 
+INSTALLBG="/etc/systemd/system/odychk-bg.service"
+INSTALLWEB="/etc/systemd/system/odychk-web.service"
+BASEDIR=$(cd $(dirname $0) && pwd)
+
+
 start-web(){
+    systemctl start odychk-web.service
+    echo "Started web service."
     exit 1
 }
 
 stop-web(){
+    systemctl stop odychk-web.service
+    echo "Stopped web service."
     exit 1
 }
 
 start-bg(){
+    systemctl start odychk-bg.service
+    echo "Started background worker service."
     exit 1
 }
 
 stop-bg(){
+    systemctl stop odychk-bg.service
+    echo "Stopped background worker service."
     exit 1
 }
 
 restart-web(){
+    systemctl restart odychk-web.service
+    echo "Restarted web service."
     exit 1
 }
 
 restart-background-worker(){
+    systemctl restart odychk-bg.service
+    echo "Restarted background worker service."
     exit 1
 }
 
 install-services(){
-    INSTALLBG="/etc/systemd/system/odychk-bg.service"
-    INSTALLWEB="/etc/systemd/system/odychk-web.service"
-    BASEDIR=$(cd $(dirname $0) && pwd)
+#BACKGROUND WORKER INSTALLATION 
     if [ -e $INSTALLBG ]
     then
         echo "Background service already installed... Skipping..."
@@ -43,8 +58,10 @@ install-services(){
         echo "ExecStart=/usr/bin/python3 $BASEDIR/odychk_worker.py" > $INSTALLBG
         echo "\n[Install]" > $INSTALLBG
         echo "WantedBy=multi-user.target" > $INSTALLBG
+        echo "Finished installing background worker service."
     fi
 
+#WEB SERVICE INSTALLATION
     if [ -e $INSTALLWEB ]
     then
         echo "Web service already installed... Skipping..."
@@ -60,14 +77,36 @@ install-services(){
         echo "ExecStart=/usr/bin/python3 $BASEDIR/odychk_worker.py" > $INSTALLWEB
         echo "\n[Install]" > $INSTALLWEB
         echo "WantedBy=multi-user.target" > $INSTALLWEB
-
+        echo "Finished installing web service."
     fi
     exit 1
 }
 
 uninstall-services(){
-    #PROMPT - ARE YOU SURE?
-    #DELETE FILES ABOVE, IF THEY EXIST
+    echo "This will uninstall the background and worker services from /etc/systemd/system. Continue? [y/N]"
+    read USERINPUT
+    if [ $USERINPUT == "y" || $USERINPUT == "Y" ]
+    then
+        echo "Removing background worker and web services."
+        if [ -e $INSTALLBG ]
+        then
+            echo "Removing $INSTALLBG."
+            rm $INSTALLBG
+        else
+            echo "$INSTALLBG could not be found. Checking web service."
+        fi
+
+        if [ -e $INSTALLWEB ]
+        then
+            echo "Removing $INSTALLWEB."
+            rm $INSTALLWEB
+        else
+            echo "$INSTALLWEB could not be found. Exiting."
+            exit 1
+        fi
+    else
+        echo "Cancelling. Services will not be uninstalled."  
+    fi
     exit 1
 }
 
