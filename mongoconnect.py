@@ -6,6 +6,8 @@ from pymongo import MongoClient
 from bson.codec_options import CodecOptions
 import pytz
 
+logger = logging.getLogger('ody_log')
+
 #connect to the database and pull the results in local time or push them in utc
 def db_connect(args):
     dbclient = MongoClient()
@@ -18,9 +20,8 @@ def db_connect(args):
 def get_latest():
     try:
         last_result = db_connect("local").find_one(sort=[('_id', pymongo.DESCENDING)])
-    except:
-        logger = logging.getLogger('ody_log')
-        logger.critical("ERROR: could not get last db entry.")
+    except Exception as exception:
+        logger.critical("ERROR: could not get last db entry: %s", exception)
     return last_result
 
 #The next 4 functions will pull the results for a given time period and calculate the uptime percentage
@@ -47,7 +48,6 @@ def get_year():
 
 #Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
-    logger = logging.getLogger('ody_log')
     #Start by converting cursor to list
     col_dict = list(col_dict)
     oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
@@ -76,6 +76,6 @@ def calculate_percentage(col_dict, time_offset):
     if down_count > 0:
         #hashtagmaths
         uptime_percentage = round(float(100-float(100*float(down_count/ len(col_dict)))), 2)
-    logger.info("Total count: " + str(len(col_dict)) + ". Down count: " + str(down_count) + ". Uptime percentage: " + str(uptime_percentage))
+    logger.debug("Total count: %s. Down count: %s. Uptime percentage: %s.", str(len(col_dict)), str(down_count), str(uptime_percentage))
 
     return uptime_percentage
