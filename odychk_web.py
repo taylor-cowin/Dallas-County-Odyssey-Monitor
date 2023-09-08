@@ -9,6 +9,8 @@ from waitress import serve
 
 import mongoconnect
 
+debug = True;
+
 #config
 template_dir = os.path.abspath('./static/templates/')
 
@@ -21,13 +23,19 @@ logger = logging.getLogger('ody_log')
 def index():
     #get the latest entry from the database and breakdown for display
     logger.debug("Index.html accessed...")
-    last_result = mongoconnect.get_latest()
+    last_result = api_lastresult()
     last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_result["run_time"]))
     return render_template('index.html', result=last_result["result"],last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
 @app.route("/api/data/last/")
 def api_lastresult():
-    return
+    last_result = mongoconnect.get_latest()
+    """
+    Needs to return a value for outside access as well as for the page.
+    I think the template needs to incorporate API calls instead of passing variables
+    from the backend via function calls.
+    """
+    return last_result
 
 @app.route("/api/data/last/outage/")
 def api_last_outage():
@@ -56,18 +64,29 @@ def favicon():
 
 #Starts the web server
 def start_waitress():
-    try:
-        logger.info("Starting web server...")
-        serve(app, host='0.0.0.0', port=5000)
-        logger.info("Web server started successfully...")
-    except Exception as exception:
-        logger.critical("ERROR: Could not start web server. %s", exception)
+    if debug:
+        try:
+            logger.info("Starting Waitress web server...")
+            serve(app, host='0.0.0.0', port=5000)
+            logger.info("Web server started successfully...")
+        except Exception as exception:
+            logger.critical("ERROR: Could not start web server. %s", exception)
+    else:
+        try:
+            logger.debug("Starting web server...")
+            app.run()
+            logger.info("Web server started successfully...")
+        except Exception as exception:
+            logger.critical("ERROR: Could not start debug web server. %s", exception)
  
 def init_logger():
     log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s')
     log_handler = RotatingFileHandler('odychk.log', encoding=None, delay=False, errors=None, maxBytes=1024*25, backupCount=30)
     log_handler.setFormatter(log_formatter)
-    logger.setLevel(logging.DEBUG)
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     logger.addHandler(log_handler)
 
 #Startup calls

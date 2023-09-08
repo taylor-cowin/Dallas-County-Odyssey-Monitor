@@ -2,9 +2,14 @@
 <html lang="en">
     <head>
         <title>DC Odyssey Status</title>
-        <link rel = "stylesheet" href="static/css/style.css" />
+        <link rel ="stylesheet" href="static/css/style.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="static/js/chartsJs"></script>
     </head>
     <body>
+        <div>
+            <canvas id="chart24"></canvas>
+        </div>          
         {% if result == 'UP' %}
             <h1><a href="https://courtsportal.dallascounty.org/DALLASPROD">Odyssey</a> is currently: <span id="up">UP</span></h1>
         {% elif result == 'DOWN' %}
@@ -13,7 +18,7 @@
             <h1>[An error has occurred]: {{result}}</h1>
         {% endif %}
         <h3 id="lastChecked">Last checked: {{last_run_time}}</h3>
-        <h3 id="refreshPage">Refresh page to update (checks once per minute)</h3>
+        <h3 id="refreshPage">Refresh page to update</h3>
 
         {% if one_day_uptime > -1 %}
         <h4>24hr Uptime: {{one_day_uptime}}%</h4>
