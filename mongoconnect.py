@@ -19,16 +19,20 @@ def db_connect(args):
 #Get the most recent result to determine up/down
 def get_latest():
     try:
-        last_result = db_connect("local").find_one(sort=[('_id', pymongo.DESCENDING)])
+        last_result = db_connect("local").find_one(sort=[('run_time', pymongo.DESCENDING)])
+        #Strip the ID field
+        del last_result["_id"]
     except Exception as exception:
         logger.critical("ERROR: could not get last db entry: %s", exception)
     return last_result
 
 #The next 4 functions will pull the results for a given time period and calculate the uptime percentage
 #add .01 to make sure we're grabbing enough entries
+###THESE ARE ONLY PERCENTAGES TODO NEED TO BREAK OUT SEPARATE FUNCTIONS TO GET THE JSON FOR API
 def get_day():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)]) # NEED TO SORT THESE TO MAKE THE POSITION 0 OLDEST
+    #Convert to list
     return calculate_percentage(col, "day") #24 hour uptime
 
 def get_week():
@@ -45,7 +49,11 @@ def get_year():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365.01)
     col = db_connect("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return calculate_percentage(col, "year") #1 year uptime
-
+"""
+def get_outage():
+    ###TODO###
+    return last_outage
+"""
 #Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
     #Start by converting cursor to list

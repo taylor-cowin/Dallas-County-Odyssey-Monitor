@@ -3,13 +3,14 @@ import os
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from time import strftime
+from bson import json_util
 
 from flask import Flask, render_template, send_from_directory
 from waitress import serve
 
 import mongoconnect
 
-debug = True;
+debug = True
 
 #config
 template_dir = os.path.abspath('./static/templates/')
@@ -23,41 +24,43 @@ logger = logging.getLogger('ody_log')
 def index():
     #get the latest entry from the database and breakdown for display
     logger.debug("Index.html accessed...")
-    last_result = api_lastresult()
+    last_result = api_lastresult() ##PROBABLY MOVING THIS TO JSON.fetch() in the html template. need to only request the later dates in html if date has passed to avoid excess calls
     last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_result["run_time"]))
     return render_template('index.html', result=last_result["result"],last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
 
 @app.route("/api/data/last/")
 def api_lastresult():
-    last_result = mongoconnect.get_latest()
-    """
-    Needs to return a value for outside access as well as for the page.
-    I think the template needs to incorporate API calls instead of passing variables
-    from the backend via function calls.
-    """
+    last_result = json_util.loads(json_util.dumps(mongoconnect.get_latest()))
     return last_result
 
+"""
 @app.route("/api/data/last/outage/")
 def api_last_outage():
-    return
-    
+    last_outage = mongoconnect.get_outage()
+    return last_outage
+"""
+
+### TODO NEED TO ADD SEPARATE API CALLS FOR PERCENTAGES -- THIS IS BROKEN BECAUSE IT'S CALLING FOR FLOAT PERCENT AND NOT THE LIST OF RESULTS
 @app.route("/api/data/last/day/")
 def api_last_day():
-    return
-
+    last_day = json_util.loads(json_util.dumps(mongoconnect.get_day()))
+    return last_day
+"""
 @app.route("/api/data/last/week/")
 def api_last_week():
-    return
+    last_week = mongoconnect.get_week()
+    return last_week
 
 @app.route("/api/data/last/month/")
 def api_last_month():
-    return
+    last_month = mongoconnect.get_month()
+    return last_month
 
 @app.route("/api/data/last/year/")
 def api_last_year():
-    return
-
-#Favicon
+    last_year = mongoconnect.get_year()
+    return last_year
+"""
 @app.route('/favicon.ico/')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -74,7 +77,7 @@ def start_waitress():
     else:
         try:
             logger.debug("Starting web server...")
-            app.run()
+            #app.run()
             logger.info("Web server started successfully...")
         except Exception as exception:
             logger.critical("ERROR: Could not start debug web server. %s", exception)
