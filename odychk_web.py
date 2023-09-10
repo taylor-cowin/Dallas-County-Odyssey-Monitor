@@ -76,7 +76,13 @@ def api_last_month_percentage():
 
 @app.route("/api/data/last/year/")
 def api_last_year():
-    last_year = mongoconnect.get_year()
+    data = mongoconnect.get_year()
+    json = json_util.loads(json_util.dumps(list_process(data)))
+    return json
+
+@app.route("/api/data/last/year/percentage")
+def api_last_year_percentage():
+    last_year = mongoconnect.get_year_percentage()
     return last_year
 
 @app.route('/favicon.ico/')
