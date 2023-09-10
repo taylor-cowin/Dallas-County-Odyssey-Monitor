@@ -43,27 +43,51 @@ def api_last_outage():
 ### TODO NEED TO ADD SEPARATE API CALLS FOR PERCENTAGES -- THIS IS BROKEN BECAUSE IT'S CALLING FOR FLOAT PERCENT AND NOT THE LIST OF RESULTS
 @app.route("/api/data/last/day/")
 def api_last_day():
-    last_day = json_util.loads(json_util.dumps(mongoconnect.get_day()))
-    return last_day
-"""
+    data = mongoconnect.get_day()
+    json = json_util.loads(json_util.dumps(list_process(data)))
+    return json
+
+@app.route("/api/data/last/day/percentage")
+def api_last_day_percentage():
+    last_day_percentage =  json_util.dumps(mongoconnect.get_day_percentage())
+    return last_day_percentage
+
 @app.route("/api/data/last/week/")
 def api_last_week():
-    last_week = mongoconnect.get_week()
-    return last_week
+    data = mongoconnect.get_week()
+    json = json_util.loads(json_util.dumps(list_process(data)))
+    return json
+
+@app.route("/api/data/last/week/percentage")
+def api_last_week_percentage():
+    data = json_util.dumps(mongoconnect.get_week_percentage())
+    return data
 
 @app.route("/api/data/last/month/")
 def api_last_month():
-    last_month = mongoconnect.get_month()
-    return last_month
+    data = mongoconnect.get_month()
+    json = json_util.loads(json_util.dumps(list_process(data)))
+    return json
+
+@app.route("/api/data/last/month/percentage")
+def api_last_month_percentage():
+    data = json_util.dumps(mongoconnect.get_month_percentage())
+    return data
 
 @app.route("/api/data/last/year/")
 def api_last_year():
     last_year = mongoconnect.get_year()
     return last_year
-"""
+
 @app.route('/favicon.ico/')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+def list_process(data):
+    list_data = list(data)
+    for entry in list_data:
+        del entry["_id"]
+    return list_data
 
 #Starts the web server
 def start_waitress():
