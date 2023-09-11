@@ -39,7 +39,7 @@ def main_loop():
     #The actual loop -- checks site once per minute
     while True:
         try:
-            set_result(check_site())
+            set_bulk_result(check_ody_online())
             #Sleep until the top of the next minute
             sleep_amount = 60-int(seconds_offset)
             logger.debug("Sleeping for %s seconds", str(sleep_amount))
@@ -50,34 +50,34 @@ def main_loop():
 #See if the website is up
 def http_request():
     #Default to down
-    result = 'DOWN'
+    result = '0'
     try:
         #App was failing to return due to website failing to timeout -- do not remove timeout clause
         request = requests.get('https://courtsportal.dallascounty.org/DALLASPROD', timeout=10)
         if request.status_code == 200:
-            result = 'UP'
+            result = '1'
     #This is the most common path for detecting down-- website is typically 200 or error
     except requests.exceptions.RequestException:
         pass
     global seconds_offset
     seconds_offset = time.strftime('%S', datetime.now().timetuple())
-    logger.debug("Seconds offset: %s", str(seconds_offset))
+    logger.debug("Seconds offset: %s", seconds_offset)
     return result
 
 #connect to the database
-def db_connect():
+def bulk_db_connect():
     dbclient = MongoClient()
     database = dbclient["odychk"]
     return database["results"] #returns the collection
 
-def set_result(result_dict):
-    db_connect().insert_one({"run_time": result_dict["run_time"], "result": result_dict["result"]})
+def set_bulk_result(result_dict):
+    bulk_db_connect().insert_one({"run_time": result_dict["run_time"], "result": result_dict["result"]})
     return
 
-def check_site():
+def check_ody_online():
     run_time = datetime.utcnow()
     result = http_request()
-    logger.info("Website is %s at %s", result, str(run_time))
+    logger.debug("Website is %s at %s", result, str(run_time))
     return {"result": result, "run_time": run_time}
 
 if __name__ == "__main__":

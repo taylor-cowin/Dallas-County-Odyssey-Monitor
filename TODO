@@ -1,8 +1,27 @@
-REDUCE DATA USAGE
-    U/D instead of UP/DOWN
-    Cut a ton of data out of the datetimes
-
 PERCENTAGE CALCULATION NOT DISPLAYING IN JSON
-PERCENTAGE CALCULATION REWRITE?
-    CACHING?? DATASET TOO LARGE? -- MAKE A TESTDB?
 
+DB 1: Cache of last week of results for data rebuild in event of crash
+    - Used to find_one() for last result 
+
+DB 2: Database of all outages:
+    - {"outage_start": datetime_start, "outage_end": datetime_end}
+
+Startup validation:
+    - Check last result from weekly db.
+    - If last down, rebuild outage detection from the weekly db (find last up)
+    - If last up, proceed as ususal
+
+Background worker:
+    - Write results to db
+    - Write outage start/end to db on outage end
+
+
+
+
+DATABASE BACKUPS
+NOTIFICATION SYSTEM
+
+Optimization (DO IT LAST, YOU IDIOT):
+    REDUCE DATA USAGE
+        U/D instead of UP/DOWN
+        Cut a ton of data out of the datetimes
