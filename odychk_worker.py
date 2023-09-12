@@ -4,11 +4,16 @@ from logging.handlers import RotatingFileHandler
 import time
 from datetime import datetime
 from pymongo import MongoClient
+import mongoconnect
 
 import requests
 
 #make an offset variable for ongoing time synchronization
 seconds_offset = 0
+
+#Global variables for downtime records
+downtime_start = None
+downtime_end = None
 
 def init_logger():
     log_formatter = (
@@ -50,12 +55,12 @@ def main_loop():
 #See if the website is up
 def http_request():
     #Default to down
-    result = '0'
+    result = 'DOWN'
     try:
         #App was failing to return due to website failing to timeout -- do not remove timeout clause
         request = requests.get('https://courtsportal.dallascounty.org/DALLASPROD', timeout=10)
         if request.status_code == 200:
-            result = '1'
+            result = 'UP'
     #This is the most common path for detecting down-- website is typically 200 or error
     except requests.exceptions.RequestException:
         pass
@@ -74,11 +79,55 @@ def set_bulk_result(result_dict):
     bulk_db_connect().insert_one({"run_time": result_dict["run_time"], "result": result_dict["result"]})
     return
 
+def log_downtime():
+    #Calculate downtiime:
+    total_downtime = 
+
+    #WRITE TO DB
+    logger.info("Outage finished. Start: %s Finish: %s", downtime_start, downtime_end, outage_length )
+
+    #RESET FLAGS
+    downtime_start = None
+    downtime_end = None
+    return
+
 def check_ody_online():
     run_time = datetime.utcnow()
     result = http_request()
     logger.debug("Website is %s at %s", result, str(run_time))
+    #If the site is up, check to see if it was previously down
+    if result == "UP" or result == "U" or result == 1:
+        if downtime_start != None:
+            """
+            CODE TO LOG DOWNTIME. CAPTURE DOWNTIME EVENT AND SEND TO DB
+            log_downtime()
+            start, end, total length
+            """
+    #If site is down, either ignore (if ongoing) or log to file (if new)
+    if result == "DOWN" or result == "D" or result == 0:
+        if downtime_start != None:
+            downtime_start = run_time
+    else:
+        
     return {"result": result, "run_time": run_time}
+
+def crash_checker():
+    logger.info("Checking to see if an outage was pending during downtime...")
+    last_entry = mongoconnect.get_latest()
+    logger.debug("Last entry: %s", str(last_entry))
+    #Check for last entry being down at startup. This would imply that the worker went down during an outage and needs to scoop up the earlier data to resume counting
+    #Potential problem -- might be unrecorded uptime while the worker was down. How to handle?
+    #TODO think through these edge cases
+    if last_entry["result"] == "DOWN" or last_entry["result"] == "D" or last_entry["result"] == 0:
+        logger.info("Crash detected. Rebuilding outage from old data...")
+    """
+
+    NEED TO WRITE CRASH REBUILDER
+
+    """
+    else:
+        logger.debug("No crash detected. Continuing...")
+    return
 
 if __name__ == "__main__":
     logger = logging.getLogger('ody_log')
