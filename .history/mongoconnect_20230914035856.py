@@ -69,6 +69,7 @@ def get_last_outage():
         logger.critical("ERROR: could not get last outage entry: %s", exception)
     return last_outage
 
+
 def get_day_percentage():
     return calculate_percentage(get_day(), "day")
 

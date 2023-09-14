@@ -62,12 +62,13 @@ def get_last_down():
 
 def get_last_outage():
     try:
-        last_outage = db_connect_outage().find_one(sort=[('end_time', pymongo.DESCENDING)])
+        last_result = db_connect_outage().find_one(sort=[('run_time', pymongo.DESCENDING)])
         #Strip the ID field
-        del last_outage["_id"]
+        del last_result["_id"]
     except Exception as exception:
-        logger.critical("ERROR: could not get last outage entry: %s", exception)
-    return last_outage
+        logger.critical("ERROR: could not get last db entry: %s", exception)
+    return last_result
+
 
 def get_day_percentage():
     return calculate_percentage(get_day(), "day")
