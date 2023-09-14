@@ -91,7 +91,7 @@ def log_downtime():
     downtime_end = None
     return
 
-def outage_handler(_result, _run_time):
+def outage_handler(_result):
     #If the site is up, check to see if it was previously down
     if _result == "UP" or _result == "U" or _result == 1:
         if downtime_start != None:
@@ -99,8 +99,9 @@ def outage_handler(_result, _run_time):
     #If site is down, either ignore (if ongoing) or log to file (if new)
     if _result == "DOWN" or _result == "D" or _result == 0:
         if downtime_start == None:
-            downtime_start = _run_time
+            downtime_start = run_time
             logger.info("Downtime detected: %s", downtime_start)
+    else:
     return
 
 def check_ody_online():
@@ -117,16 +118,13 @@ def crash_checker():
     #Check for last entry being down at startup. This would imply that the worker went down during an outage and needs to scoop up the earlier data to resume counting
     #Potential problem -- might be unrecorded uptime while the worker was down. How to handle?
     #TODO think through these edge cases
-    #TODO RESTRUCTURE THIS LOGIC -- NONSENSE CURRENTLY
     if last_entry["result"] == "DOWN" or last_entry["result"] == "D" or last_entry["result"] == 0:
-        logger.info("Outage detected at startup. Rebuilding outage from old data...")
-        last_down = mongoconnect.get_last_down()
-        logger.info("Last logged \"Down\" entry: %s at %s", last_down["result"], last_down["run_time"])
-        last_logged_outage = mongoconnect.get_last_outage()
-        #If the last DOWN was after the last logged outage start time, then we started the script during an unlogged outage
-        if last_down != None and last_logged_outage != None:
-            if last_logged_outage["start_time"] < last_down["run_time"]:
-                end_time = last_down["run_time"]
+        logger.info("Crash detected. Rebuilding outage from old data...")
+    """
+
+    NEED TO WRITE CRASH REBUILDER
+
+    """
     else:
         logger.debug("No crash detected. Continuing...")
     return

@@ -117,7 +117,6 @@ def crash_checker():
     #Check for last entry being down at startup. This would imply that the worker went down during an outage and needs to scoop up the earlier data to resume counting
     #Potential problem -- might be unrecorded uptime while the worker was down. How to handle?
     #TODO think through these edge cases
-    #TODO RESTRUCTURE THIS LOGIC -- NONSENSE CURRENTLY
     if last_entry["result"] == "DOWN" or last_entry["result"] == "D" or last_entry["result"] == 0:
         logger.info("Outage detected at startup. Rebuilding outage from old data...")
         last_down = mongoconnect.get_last_down()

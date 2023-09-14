@@ -9,7 +9,7 @@ import pytz
 logger = logging.getLogger('ody_log')
 
 #connect to the database and pull the results in local time or push them in utc
-def db_connect_bulk():
+def db_connect_bulk(args):
     dbclient = MongoClient()
     db = dbclient["odychk"]
     col = db["results"]
@@ -17,7 +17,7 @@ def db_connect_bulk():
     return col
 
 #Connector for the outage DB
-def db_connect_outage():
+def db_connect_outage(args):
     dbclient = MongoClient()
     db = dbclient["odychk"]
     col = db["outages"]
@@ -27,7 +27,7 @@ def db_connect_outage():
 #Get the most recent result to determine up/down
 def get_latest():
     try:
-        last_result = db_connect_bulk().find_one(sort=[('run_time', pymongo.DESCENDING)])
+        last_result = db_connect_bulk("local").find_one(sort=[('run_time', pymongo.DESCENDING)])
         #Strip the ID field
         del last_result["_id"]
     except Exception as exception:
@@ -38,36 +38,33 @@ def get_latest():
 #add .01 to make sure we're grabbing enough entries. Laziest hack ever but whatever; it works. Don't @ me.
 def get_day():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1.00000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
+    col = db_connect_bulk("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return col
 
 def get_week():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=7.0000000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
+    col = db_connect_bulk("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return col
 
 def get_month():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=30.000000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
+    col = db_connect_bulk("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return col
 
 def get_year():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365.00000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
+    col = db_connect_bulk("local").find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return col
 
 def get_last_down():
-    last_down = db_connect_bulk().find_one({"result": "DOWN"},sort=[('run_time', pymongo.DESCENDING)])
+    last_down = db_connect_bulk("local").find_one({"result": "DOWN"},sort=[('run_time', pymongo.DESCENDING)])
     return last_down
 
-def get_last_outage():
-    try:
-        last_outage = db_connect_outage().find_one(sort=[('end_time', pymongo.DESCENDING)])
-        #Strip the ID field
-        del last_outage["_id"]
-    except Exception as exception:
-        logger.critical("ERROR: could not get last outage entry: %s", exception)
+"""
+def get_outage():
+    ###TODO###
     return last_outage
+"""
 
 def get_day_percentage():
     return calculate_percentage(get_day(), "day")

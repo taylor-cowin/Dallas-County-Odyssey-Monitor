@@ -15,8 +15,7 @@ Background worker:
     - Write results to db
     - Write outage start/end to db on outage end
 
-ALL:
-    - Check for orphaned TODO tags
+
 
 
 DATABASE BACKUPS

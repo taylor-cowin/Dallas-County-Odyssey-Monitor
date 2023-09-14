@@ -67,7 +67,8 @@ def get_last_outage():
         del last_outage["_id"]
     except Exception as exception:
         logger.critical("ERROR: could not get last outage entry: %s", exception)
-    return last_outage
+    return last_result
+
 
 def get_day_percentage():
     return calculate_percentage(get_day(), "day")
