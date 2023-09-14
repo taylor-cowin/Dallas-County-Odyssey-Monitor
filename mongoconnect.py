@@ -62,6 +62,7 @@ def get_last_down():
 
 def get_last_outage():
     try:
+        #Find the last outage by end time
         last_outage = db_connect_outage().find_one(sort=[('end_time', pymongo.DESCENDING)])
         #Strip the ID field
         del last_outage["_id"]
@@ -69,6 +70,8 @@ def get_last_outage():
         logger.critical("ERROR: could not get last outage entry: %s", exception)
     return last_outage
 
+#TODO Rewrite this to fit with new outage storage
+#TODO What to do if the outage is ongoing at the start of the period? Need to calculate from some middle time period forward
 def get_day_percentage():
     return calculate_percentage(get_day(), "day")
 
@@ -81,12 +84,13 @@ def get_month_percentage():
 def get_year_percentage():
     return calculate_percentage(get_year(), "year")
 
-#Percentage calculation done here
+#Percentage calculation done here TODO Rewrite this to fit with new outage storage
 def calculate_percentage(col_dict, time_offset):
     #Start by converting cursor to list
     col_dict = list(col_dict)
     oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
     
+    #Only calculate percentages if enough time has been elapsed
     match time_offset:
         case "day":
             #if it hasn't been that long yet, set return to -1 to hide it from the website
@@ -102,6 +106,7 @@ def calculate_percentage(col_dict, time_offset):
             if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=365)) < oldest_date:
                 return -1
 
+#TODO rewrite to fit new schema
 # Count # of "DOWN" entries and calculate downtime by dividing by number of entries OR return defaults if down_count isn't initialized (infer 0)
     for entry in col_dict:
         if entry["result"] == "DOWN" or entry["result"] == "ERROR":

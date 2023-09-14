@@ -33,12 +33,10 @@ def api_lastresult():
     last_result = json_util.loads(json_util.dumps(mongoconnect.get_latest()))
     return last_result
 
-"""
 @app.route("/api/data/last/outage/")
 def api_last_outage():
-    last_outage = mongoconnect.get_outage()
+    last_outage = mongoconnect.get_last_outage()
     return last_outage
-"""
 
 ### TODO NEED TO ADD SEPARATE API CALLS FOR PERCENTAGES -- THIS IS BROKEN BECAUSE IT'S CALLING FOR FLOAT PERCENT AND NOT THE LIST OF RESULTS
 @app.route("/api/data/last/day/")
@@ -89,6 +87,7 @@ def api_last_year_percentage():
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+#Strips IDs from dicts
 def list_process(data):
     list_data = list(data)
     for entry in list_data:

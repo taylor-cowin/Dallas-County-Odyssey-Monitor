@@ -52,7 +52,7 @@ def main_loop():
         except Exception as exception:
             logger.critical("Couldn't set result of website check. Check database connection. Cause: %s", exception)
 
-#See if the website is up
+#See if the website is up (i.e. returns 200 w/in timeout period)
 def http_request():
     #Default to down
     result = 'DOWN'
@@ -81,35 +81,40 @@ def set_bulk_result(result_dict):
 
 def log_downtime():
     #Calculate downtime:
+    global downtime_end
+    global downtime_start
     total_downtime = downtime_end - downtime_start
-
     #WRITE TO DB
-    logger.info("Outage finished. Start: %s Finish: %s", downtime_start, downtime_end, total_downtime )
-
+    logger.info("Outage finished. Start: %s, Finish: %s, Length: %s.", downtime_start, downtime_end, total_downtime )
     #RESET VARS
     downtime_start = None
     downtime_end = None
     return
 
 def outage_handler(_result, _run_time):
-    #If the site is up, check to see if it was previously down
+    global downtime_start
+    #If the site is up, check to see if it was previously down. Log if so, because outage is complete
     if _result == "UP" or _result == "U" or _result == 1:
-        if downtime_start != None:
+        if downtime_start is not None:
             log_downtime()
     #If site is down, either ignore (if ongoing) or log to file (if new)
     if _result == "DOWN" or _result == "D" or _result == 0:
-        if downtime_start == None:
+        if downtime_start is None:
             downtime_start = _run_time
             logger.info("Downtime detected: %s", downtime_start)
+        else:
+            logger.debug("Ongoing outage at %s.", _run_time)
     return
 
 def check_ody_online():
     run_time = datetime.utcnow()
     result = http_request()
     logger.debug("Website is %s at %s", result, str(run_time))
+    #Pass to the outage handler to see if we're having an outage and act accordingly
     outage_handler(result, run_time)
     return {"result": result, "run_time": run_time}
 
+#See if we're starting up the app mid-outage. Not strictly a "crash," but the worker should never really be down unless the system goes down
 def crash_checker():
     logger.info("Checking to see if an outage was pending during downtime...")
     last_entry = mongoconnect.get_latest()
@@ -124,7 +129,7 @@ def crash_checker():
         logger.info("Last logged \"Down\" entry: %s at %s", last_down["result"], last_down["run_time"])
         last_logged_outage = mongoconnect.get_last_outage()
         #If the last DOWN was after the last logged outage start time, then we started the script during an unlogged outage
-        if last_down != None and last_logged_outage != None:
+        if last_down is not None and last_logged_outage is not None:
             if last_logged_outage["start_time"] < last_down["run_time"]:
                 end_time = last_down["run_time"]
     else:
@@ -134,4 +139,5 @@ def crash_checker():
 if __name__ == "__main__":
     logger = logging.getLogger('ody_log')
     init_logger()
+    crash_checker()
     main_loop()
