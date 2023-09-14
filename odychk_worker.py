@@ -81,7 +81,7 @@ def set_bulk_result(result_dict):
 
 def log_downtime():
     #Calculate downtiime:
-    total_downtime = 
+    #total_downtime = 
 
     #WRITE TO DB
     logger.info("Outage finished. Start: %s Finish: %s", downtime_start, downtime_end, outage_length )
