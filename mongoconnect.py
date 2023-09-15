@@ -38,9 +38,16 @@ def get_latest():
 #add .01 to make sure we're grabbing enough entries. Laziest hack ever but whatever; it works. Don't @ me.
 def get_day():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=1.00000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
+    #Get entries where end time is within the last day, then need to handle outages that cross over the time line.
+    col = db_connect_outage().find({"end": {'$gt': time_delta}},sort=[("end", pymongo.ASCENDING)])
+    #cast cursor to list then check the start time to see if it's greater than the time delta
+    col = list(col)
+    oldest_outage = col[0]
+    #Set it to 24hr ago if it's older than that
+    if oldest_outage["start"] <= time_delta:
+        oldest_outage["start"] = time_delta
     return col
-
+"""
 def get_week():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=7.0000000001)
     col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
@@ -55,10 +62,10 @@ def get_year():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365.00000001)
     col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
     return col
-
-def get_last_down():
-    last_down = db_connect_bulk().find_one({"result": "DOWN"},sort=[('run_time', pymongo.DESCENDING)])
-    return last_down
+"""
+def get_last_up():
+    last_up = db_connect_bulk().find_one({"result": "UP"},sort=[('run_time', pymongo.DESCENDING)])
+    return last_up
 
 def get_last_outage():
     try:
@@ -70,10 +77,9 @@ def get_last_outage():
         logger.critical("ERROR: could not get last outage entry: %s", exception)
     return last_outage
 
-#TODO Rewrite this to fit with new outage storage
 #TODO What to do if the outage is ongoing at the start of the period? Need to calculate from some middle time period forward
 def get_day_percentage():
-    return calculate_percentage(get_day(), "day")
+    return calculate_percentage(get_day(), "day") #args = list of outages, time offset for percentage calculation function
 
 def get_week_percentage():
     return calculate_percentage(get_week(), "week")
@@ -84,39 +90,44 @@ def get_month_percentage():
 def get_year_percentage():
     return calculate_percentage(get_year(), "year")
 
-#Percentage calculation done here TODO Rewrite this to fit with new outage storage
+#Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
-    #Start by converting cursor to list
-    col_dict = list(col_dict)
-    oldest_date = col_dict[0]["run_time"] #GET THE OLDEST DATE IN THE SET
+    #Start by converting cursor to list - DEPRECATION CANDIDATE - TESTING/TODO
+   #col_dict = list(col_dict)
+    oldest_outage_start = col_dict[0]["start"] #GET THE OLDEST OUTAGE START IN THE SET
     
     #Only calculate percentages if enough time has been elapsed
     match time_offset:
         case "day":
             #if it hasn't been that long yet, set return to -1 to hide it from the website
-            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)) < oldest_date:
+            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=1)) < oldest_outage_start:
                 return -1
         case "week":
-            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=7)) < oldest_date:
+            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=7)) < oldest_outage_start:
                 return -1
         case "month":
-            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=30)) < oldest_date:
+            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=30)) < oldest_outage_start:
                 return -1
         case "year":
-            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=365)) < oldest_date:
+            if (datetime.now(pytz.timezone("US/Central")) - timedelta(days=365)) < oldest_outage_start:
                 return -1
 
-#TODO rewrite to fit new schema
-# Count # of "DOWN" entries and calculate downtime by dividing by number of entries OR return defaults if down_count isn't initialized (infer 0)
-    for entry in col_dict:
-        if entry["result"] == "DOWN" or entry["result"] == "ERROR":
-            down_count += 1
-    try:
-        if down_count > 0:
-            #hashtagmaths
-            uptime_percentage = round(float(100-float(100*float(down_count/len(col_dict)))), 2)
-    except NameError:
-        down_count = 0
-        uptime_percentage = 100
-    logger.debug("Total count: %s. Down count: %s. Uptime percentage: %s.", str(len(col_dict)), str(down_count), str(uptime_percentage))
+#Gather all of the outages and pull their {"length"} value (int in minutes) and add them up to get average across a period
+#Defaults set at top
+    outage_time = 0
+    uptime_percentage = 100
+    for outage in col_dict:
+        outage_time += outage["length"] #length in minutes
+    if outage_time > 0:
+        match time_offset:
+            case "day":
+                minutes = 1440
+            case "week":
+                minutes = 10080
+            case "month":
+                minutes = 43200
+            case "year":
+                minutes = 525600
+        uptime_percentage = 100 - ((outage_time / minutes) * 100) #Get the percentage of time it was up by subtracting downtime percentage from 100
+    logger.debug("Outages: %s. Outages length: %s. Uptime percentage: %s.", str(len(col_dict)), str(outage_time), str(uptime_percentage))
     return uptime_percentage

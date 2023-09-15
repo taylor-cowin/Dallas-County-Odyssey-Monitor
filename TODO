@@ -1,3 +1,15 @@
+Need to rewrite API to use new data outage format
+
+Cache calculations until next outage
+
+
+FIX STARTUP -> JUST NEED TO SEE IF THERE'S AN UNLOGGED OUTAGE SINCE LAST OUTAGE BY CHECKING LAST UP AGAINST LAST OUTAGE END
+    IF DOWN SINCE LAST END THEN IN OUTAGE AND START IT MINUTE AFTER LAST LOGGED UP
+
+
+
+
+
 PERCENTAGE CALCULATION NOT DISPLAYING IN JSON
 
 DB 1: Cache of last week of results for data rebuild in event of crash
@@ -8,8 +20,8 @@ DB 2: Database of all outages:
 
 Startup validation:
     - Check last result from weekly db.
-    - If last down, rebuild outage detection from the weekly db (find last up)
-    - If last up, proceed as ususal
+    - If last down, rebuild outage detection from the weekly db (find last up result)
+    - If last result is up, proceed as ususal
 
 Background worker:
     - Write results to db

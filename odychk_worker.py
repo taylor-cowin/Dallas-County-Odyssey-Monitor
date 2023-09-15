@@ -79,6 +79,15 @@ def set_bulk_result(result_dict):
     bulk_db_connect().insert_one({"run_time": result_dict["run_time"], "result": result_dict["result"]})
     return
 
+def outage_db_connect(): #returns "results" collection
+    dbclient = MongoClient()
+    database = dbclient["odychk"]
+    return database["outages"] #returns the collection
+
+def set_outage(downtime_dict):
+    outage_db_connect().insert_one(downtime_dict)
+    return
+
 def log_downtime():
     #Calculate downtime:
     global downtime_end
@@ -86,6 +95,8 @@ def log_downtime():
     total_downtime = downtime_end - downtime_start
     #WRITE TO DB
     logger.info("Outage finished. Start: %s, Finish: %s, Length: %s.", downtime_start, downtime_end, total_downtime )
+    downtime_dict = { "start": downtime_start, "end": downtime_end, "length": total_downtime }
+    set_outage(downtime_dict)
     #RESET VARS
     downtime_start = None
     downtime_end = None
@@ -114,30 +125,28 @@ def check_ody_online():
     outage_handler(result, run_time)
     return {"result": result, "run_time": run_time}
 
-#See if we're starting up the app mid-outage. Not strictly a "crash," but the worker should never really be down unless the system goes down
-def crash_checker():
+#This is a mind-bending mess and really isn't necessary. Leaving in case I want to spend time on it later, but it's a waste of time for now
+"""def crash_checker():
     logger.info("Checking to see if an outage was pending during downtime...")
     last_entry = mongoconnect.get_latest()
     logger.debug("Last entry: %s", str(last_entry))
     #Check for last entry being down at startup. This would imply that the worker went down during an outage and needs to scoop up the earlier data to resume counting
-    #Potential problem -- might be unrecorded uptime while the worker was down. How to handle?
-    #TODO think through these edge cases
-    #TODO RESTRUCTURE THIS LOGIC -- NONSENSE CURRENTLY
     if last_entry["result"] == "DOWN" or last_entry["result"] == "D" or last_entry["result"] == 0:
         logger.info("Outage detected at startup. Rebuilding outage from old data...")
-        last_down = mongoconnect.get_last_down()
-        logger.info("Last logged \"Down\" entry: %s at %s", last_down["result"], last_down["run_time"])
+        last_up = mongoconnect.get_last_up()
+        logger.info("Last logged \"up\" entry: %s at %s", last_up["result"], last_up["run_time"])
         last_logged_outage = mongoconnect.get_last_outage()
+        logger.info("Last logged \"outage\" entry: %s at %s", last_up["result"], last_up["run_time"])
         #If the last DOWN was after the last logged outage start time, then we started the script during an unlogged outage
-        if last_down is not None and last_logged_outage is not None:
-            if last_logged_outage["start_time"] < last_down["run_time"]:
-                end_time = last_down["run_time"]
+        if last_up is not None and last_logged_outage is not None:
+            if last_logged_outage["start_time"] < last_up["run_time"]:
+                end_time = last_up["run_time"]
     else:
         logger.debug("No crash detected. Continuing...")
     return
-
+"""
 if __name__ == "__main__":
     logger = logging.getLogger('ody_log')
     init_logger()
-    crash_checker()
+    #crash_checker()
     main_loop()
