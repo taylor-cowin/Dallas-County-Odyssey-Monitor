@@ -34,6 +34,16 @@ def get_latest():
         logger.critical("ERROR: could not get last db entry: %s", exception)
     return last_result
 
+def outage_calculator_verify_length(col):
+    try:
+        oldest_outage = col[0]
+        #Set it to max time range datetime if it's older than that
+        if oldest_outage["start"] <= time_delta:
+            oldest_outage["start"] = time_delta
+    except Exception as exception:
+        col = None
+    return col
+
 #The next 4 functions will pull the results for a given time period and calculate the uptime percentage
 #add .01 to make sure we're grabbing enough entries. Laziest hack ever but whatever; it works. Don't @ me.
 def get_day():
@@ -42,31 +52,36 @@ def get_day():
     col = db_connect_outage().find({"end": {'$gt': time_delta}},sort=[("end", pymongo.ASCENDING)])
     #cast cursor to list then check the start time to see if it's greater than the time delta
     col = list(col)
-    oldest_outage = col[0]
-    #Set it to 24hr ago if it's older than that
-    if oldest_outage["start"] <= time_delta:
-        oldest_outage["start"] = time_delta
-    return col
-"""
+    return outage_calculator_verify_length(col)
+
 def get_week():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=7.0000000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
-    return col
+    col = db_connect_outage().find({"end": {'$gt': time_delta}},sort=[("end", pymongo.ASCENDING)])
+    col = list(col)
+    return outage_calculator_verify_length(col)
+
 
 def get_month():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=30.000000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
-    return col
+    col = db_connect_outage().find({"end": {'$gt': time_delta}},sort=[("end", pymongo.ASCENDING)])
+    col = list(col)
+    return outage_calculator_verify_length(col)
+
 
 def get_year():
     time_delta = datetime.now(pytz.timezone("US/Central")) - timedelta(days=365.00000001)
-    col = db_connect_bulk().find({"run_time": {'$gt': time_delta}},sort=[("run_time", pymongo.ASCENDING)])
-    return col
-"""
+    col = db_connect_outage().find({"end": {'$gt': time_delta}},sort=[("end", pymongo.ASCENDING)])
+    col = list(col)
+    return outage_calculator_verify_length(col)
+
+
 def get_last_up():
     last_up = db_connect_bulk().find_one({"result": "UP"},sort=[('run_time', pymongo.DESCENDING)])
     return last_up
 
+def get_last_down():
+    last_down = db_connect_bulk().find_one({"result": "DOWN"},sort=[('run_time', pymongo.DESCENDING)])
+    return last_down
 def get_last_outage():
     try:
         #Find the last outage by end time
@@ -92,8 +107,6 @@ def get_year_percentage():
 
 #Percentage calculation done here
 def calculate_percentage(col_dict, time_offset):
-    #Start by converting cursor to list - DEPRECATION CANDIDATE - TESTING/TODO
-   #col_dict = list(col_dict)
     oldest_outage_start = col_dict[0]["start"] #GET THE OLDEST OUTAGE START IN THE SET
     
     #Only calculate percentages if enough time has been elapsed

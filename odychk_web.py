@@ -26,7 +26,7 @@ def index():
     logger.debug("Index.html accessed...")
     last_result = api_lastresult() ##PROBABLY MOVING THIS TO JSON.fetch() in the html template. need to only request the later dates in html if date has passed to avoid excess calls
     last_run_time = strftime('%I:%M %p on %x', datetime.timetuple(last_result["run_time"]))
-    return render_template('index.html', result=last_result["result"],last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day(), one_week_uptime=mongoconnect.get_week(), one_month_uptime=mongoconnect.get_month(), one_year_uptime=mongoconnect.get_year())
+    return render_template('index.html', result=last_result["result"],last_run_time=last_run_time,one_day_uptime=mongoconnect.get_day_percentage(), one_week_uptime=mongoconnect.get_week_percentage(), one_month_uptime=mongoconnect.get_month_percentage(), one_year_uptime=mongoconnect.get_year_percentage())
 
 @app.route("/api/data/last/")
 def api_lastresult():
