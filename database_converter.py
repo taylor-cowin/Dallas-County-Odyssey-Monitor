@@ -3,7 +3,6 @@ from logging.handlers import RotatingFileHandler
 from datetime import timedelta
 
 from pymongo import MongoClient
-from datetime import timedelta
 
 def db_connect_bulk():
     dbclient = MongoClient()
@@ -69,16 +68,15 @@ def calculate_outages():
             if start_time is not None:
                 if end_time is None: #This should be the only possible outcome
                     end_time = result["run_time"]
-                    total_time = timedelta(end_time - start_time)
+                    total_time = end_time - start_time
+                    logger.debug("Total time: %s", total_time)
                     update_outages()
                 else:
                     logger.info("An error has occurred -- line 70")
 
-
-
 if __name__ == "__main__":
-    init_logger()
     logger = logging.getLogger('converter_log')
+    init_logger()
     logger.info("Starting database conversion...")
     delete_old_outages()
     calculate_outages()
