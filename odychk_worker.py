@@ -2,7 +2,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pymongo import MongoClient
 import mongoconnect
 
@@ -92,7 +92,7 @@ def log_downtime():
     #Calculate downtime:
     global downtime_end
     global downtime_start
-    total_downtime = downtime_end - downtime_start
+    total_downtime = timedelta(downtime_end - downtime_start)
     #WRITE TO DB
     logger.info("Outage finished. Start: %s, Finish: %s, Length: %s.", downtime_start, downtime_end, total_downtime )
     downtime_dict = { "start": downtime_start, "end": downtime_end, "length": total_downtime }

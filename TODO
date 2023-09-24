@@ -1,4 +1,4 @@
-Need to rewrite API to use new data outage format
+NEED TO HANDLE CASE WHERE SITE IS CURRENTly DOWN AND OUTAGE ISN'T YET PACKAGED AND SAVED TO DB
 
 Cache calculations until next outage
 
