@@ -46,6 +46,9 @@ def update_outages():
 
     logger.info("Updating outage -- Start: %s; End: %s; Total time: %s", start_time, end_time, total_time)
 
+
+    db_connect_outage().insert_one({"start_time": start_time, "end_time": end_time, "total_time": total_time.seconds})
+
     #Reset variables at the end
     start_time = None
     end_time = None
